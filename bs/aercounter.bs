@@ -1,0 +1,44 @@
+
+-- Comments
+
+package aercounter where
+
+-- Project imports
+
+import Vector
+
+--
+
+interface Aercounter_ifc =
+    ae :: (UInt 4) -> Action
+    get :: (Bit 40)
+
+{-# verilog mkAercounter #-}
+
+mkAercounter :: Module Aercounter_ifc
+mkAercounter = 
+    module 
+        -- can define some constants with "let"
+        -- let n   :: Integer = 10
+
+        -- Instanciate counter registers
+        counters :: Vector 10 (Reg (UInt 4)) <- replicateM (mkReg 0)
+
+        let uint2bit :: (Reg (UInt 4)) -> Bit 4
+            uint2bit x = pack x._read
+        
+        let bcounters :: Vector 10 (Bit 4) = map pack (readVReg counters)
+
+
+        --counters_1d 
+
+        -- Rules
+        -- rules
+
+
+        interface
+            ae a = do
+                        (select counters a)._write((select counters a)._read + 1)
+                   when (True)
+
+            get = pack bcounters

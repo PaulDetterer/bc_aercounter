@@ -1,0 +1,32 @@
+package Top where
+
+    import aercounter
+    import Vector
+
+
+    {-# verilog mkTop #-}
+
+    mkTop :: Module Empty
+    mkTop = module
+
+        cycles :: Reg (UInt 16) <- mkReg 0
+
+        let addr = (pack cycles) [7:4]
+
+        xs :: Vector 10 (Reg (UInt 4)) <- replicateM (mkReg 0)
+
+        dut :: Aercounter_ifc <- mkAercounter
+
+
+        rules
+            
+            "drive_input": when (True)
+               ==> do
+                   dut.ae $ unpack addr
+                   cycles := cycles + fromInteger(1)
+                   $display "[%0d] counter=%16h" cycles dut.get 
+
+            "finish": when (cycles == 64)
+               ==> do 
+                   $finish
+
